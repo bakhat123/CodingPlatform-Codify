@@ -1,0 +1,101 @@
+[
+  {
+    "id": "1",
+    "title": "Sum of Two Numbers",
+    "description": "In this problem, your task is to create a function that accepts two integers as input and returns their sum. The sum of two numbers is calculated by simply adding the two values together. You need to implement a function sumTwoNumbers(a, b) that takes two integers a and b as input and returns their sum.",
+    "starterCode": {
+      "javascript": "function sumTwoNumbers(a, b) {\n  // Write your code here\n  return 0;\n}",
+      "python": "def sum_two_numbers(a, b):\n    # Write your code here\n    return 0",
+      "cpp": "int sumTwoNumbers(int a, int b) {\n    // Write your code here\n    return 0;\n}",
+      "java": "public static int sumTwoNumbers(int a, int b) {\n    // Write your code here\n    return 0;\n}"
+    },
+    "difficulty": "easy",
+    "points": 30,
+    "testCases": [
+      {
+        "input": {
+          "javascript": "sumTwoNumbers(3, 5)",
+          "python": "sum_two_numbers(3, 5)",
+          "cpp": "sumTwoNumbers(3, 5)",
+          "java": "sumTwoNumbers(3, 5)"
+        },
+        "expectedOutput": "8"
+      },
+      {
+        "input": {
+          "javascript": "sumTwoNumbers(-1, 4)",
+          "python": "sum_two_numbers(-1, 4)",
+          "cpp": "sumTwoNumbers(-1, 4)",
+          "java": "sumTwoNumbers(-1, 4)"
+        },
+        "expectedOutput": "3"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Prime Number Check",
+    "description": "In this problem, you need to write a function that checks if a given number is prime. The function should take an integer as an argument and return `True` if it is prime, and `False` otherwise.\n\nFor example, `isPrime(7)` should return `True` and `isPrime(10)` should return `False`. Below is the function header where you need to implement the logic.",
+    "starterCode": {
+      "javascript": "function isPrime(num) {\n  // Write your code here\n  return false;\n}",
+      "python": "def isPrime(num):\n    # Write your code here\n    return False\n",
+      "cpp": "bool isPrime(int num) {\n    // Write your code here\n    return false;\n}",
+      "java": "public static boolean isPrime(int num) {\n    // Write your code here\n    return false;\n}"
+    },
+    "difficulty": "medium",
+    "points": 50,
+    "testCases": [
+      {
+        "input": {
+          "javascript": "isPrime(7)",
+          "python": "isPrime(7)",
+          "cpp": "isPrime(7)",
+          "java": "isPrime(7)"
+        },
+        "expectedOutput": "True"
+      },
+      {
+        "input": {
+          "javascript": "isPrime(10)",
+          "python": "isPrime(10)",
+          "cpp": "isPrime(10)",
+          "java": "isPrime(10)"
+        },
+        "expectedOutput": "False"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Factorial",
+    "description": "In this problem, you are asked to write a function to calculate the factorial of a number. A factorial is the product of all positive integers less than or equal to a number. For example, `factorial(5)` returns `120` because 5 * 4 * 3 * 2 * 1 = 120.\n\nPlease implement the function `factorial(n)` that calculates the factorial of `n`. Below is the function header where you need to implement the logic.",
+    "starterCode": {
+      "javascript": "function factorial(n) {\n  // Write your code here\n  return 1;\n}",
+      "python": "def factorial(n):\n    # Write your code here\n    return 1\n",
+      "cpp": "int factorial(int n) {\n    // Write your code here\n    return 1;\n}",
+      "java": "public static int factorial(int n) {\n    // Write your code here\n    return 1;\n}"
+    },
+    "difficulty": "hard",
+    "points": 100,
+    "testCases": [
+      {
+        "input": {
+          "javascript": "factorial(5)",
+          "python": "factorial(5)",
+          "cpp": "factorial(5)",
+          "java": "factorial(5)"
+        },
+        "expectedOutput": "120"
+      },
+      {
+        "input": {
+          "javascript": "factorial(3)",
+          "python": "factorial(3)",
+          "cpp": "factorial(3)",
+          "java": "factorial(3)"
+        },
+        "expectedOutput": "6"
+      }
+    ]
+  }
+]

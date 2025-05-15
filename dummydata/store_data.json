@@ -1,0 +1,59 @@
+[
+    {
+      "id": 1,
+      "name": "Sekiro",
+      "type": "Pfp",
+      "features": ["Pfp", "Most Popular", "Diamond", "All Items"],
+      "price": "5"
+    },
+    {
+      "id": 2,
+      "name": "HollowKnight",
+      "type": "Pfp",
+      "features": ["Pfp", "Gold", "Recent", "All Items"],
+      "price": "90"
+    },
+    {
+      "id": 3,
+      "name": "Gengar",
+      "type": "Pfp",
+      "features": ["Pfp", "Diamond", "All Items"],
+      "price": "10"
+    },
+    {
+      "id": 4,
+      "name": "Terrorance",
+      "type": "Background",
+      "features": ["Background", "Gold", "All Items"],
+      "price": "20"
+    },
+    {
+      "id": 5,
+      "name": "Shadow Warrior",
+      "type": "Background",
+      "features": ["Background", "Diamond", "All Items"],
+      "price": "18"
+    },
+    {
+      "id": 6,
+      "name": "Fortnite",
+      "type": "Background",
+      "features": ["Background", "Diamond", "All Items"],
+      "price": "25"
+    },
+    {
+      "id": 7,
+      "name": "Diablo",
+      "type": "Background",
+      "features": ["Background", "Gold", "All Items"],
+      "price": "60"
+    },
+    {
+      "id": 8,
+      "name": "Witcher",
+      "type": "Background",
+      "features": ["Background", "Recent", "Most Popular", "Diamond", "All Items"],
+      "price": "30"
+    }
+  ]
+  

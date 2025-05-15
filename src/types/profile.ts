@@ -1,0 +1,1 @@
+export type ActiveTab = 'Achievements' | 'Assets' | 'History' | 'Progress' | 'Information';

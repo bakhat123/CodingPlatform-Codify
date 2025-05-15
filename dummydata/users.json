@@ -1,0 +1,35 @@
+[
+  {
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "password123",
+    "username": "johndoe",
+    "achievements": ["Multi-Chainer"],
+    "assets": {
+      "pfps": ["Sekiro", "Gengar"],  
+      "backgrounds": ["Terrorance", "Witcher"] 
+  }
+  },
+  {
+    "name": "Klaxoon",
+    "email": "klaxoon@example.com",
+    "password": "password123",
+    "username": "klaxoon",
+    "achievements": ["Multi-Chainer","Stashh-Crow","Stashh-Whale","Red-Eye"],
+    "assets": {
+      "pfps": ["Sekiro","HollowKnight","Fire Hashira", "Gengar"],  
+      "backgrounds": ["Fortnite","Witcher", "Diablo","Shadow Warrior"] 
+  }
+  },
+  {
+    "name": "bakhat",
+    "email": "bakhat@example.com",
+    "password": "password123",
+    "username": "bakhat",
+    "achievements": ["Multi-Chainer", "Stashh-Crow"],
+    "assets": {
+      "pfps": ["HollowKnight", "Sekiro"],  
+      "backgrounds": ["Shadow Warrior", "Fortnite"]  
+    }
+  }
+]

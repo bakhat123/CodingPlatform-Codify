@@ -1,0 +1,30 @@
+[
+  {
+    "weekNumber": 1,
+    "title": "Weekly Coding Challenge - Week 1",
+    "description": "This is the first week of our coding tournament! Solve problems to earn points and climb the ranks.",
+    "startDate": "2025-05-10T00:00:00Z",
+    "endDate": "2025-05-17T00:00:00Z",
+    "problems": [
+      "681d0aed9fbeeb7e1f699987",
+      "681d0aed9fbeeb7e1f699988",
+      "681d0aed9fbeeb7e1f699989"
+    ],
+    "status": "active",
+    "participants": []
+  },
+  {
+    "weekNumber": 2,
+    "title": "Weekly Coding Challenge - Week 2",
+    "description": "This is the second week of our coding tournament! Solve more challenging problems and increase your rank.",
+    "startDate": "2025-05-18T00:00:00Z",
+    "endDate": "2025-05-24T00:00:00Z",
+    "problems": [
+      "681d0aed9fbeeb7e1f699990",
+      "681d0aed9fbeeb7e1f699991",
+      "681d0aed9fbeeb7e1f699992"
+    ],
+    "status": "upcoming",
+    "participants": []
+  }
+]
