@@ -8,12 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 const User = () => {
-  const router = useRouter();
   const { data: session, status } = useSession();
 
   if (status === "loading") {

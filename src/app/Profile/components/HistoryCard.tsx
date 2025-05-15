@@ -8,7 +8,6 @@ interface RatingCardProps {
     lastResult: string;
     submissions: string;
     problemId: string;
-    tournamentId: string;
 }
 
 const RatingCard: React.FC<RatingCardProps> = ({ 
@@ -17,8 +16,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     difficulty, 
     lastResult,
     submissions,
-    problemId,
-    tournamentId
+    problemId
 }) => {
   const router = useRouter();
   const difficultyClass = difficulty.toLowerCase() === "easy" ? "text-[#1CBABA]" 
