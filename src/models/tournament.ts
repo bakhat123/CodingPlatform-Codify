@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import { IProblem } from "./problem";
 
 export interface ITournament extends Document {
   weekNumber: number;
@@ -6,7 +7,7 @@ export interface ITournament extends Document {
   description: string;
   startDate: Date;
   endDate: Date;
-  problems: mongoose.Types.ObjectId[];
+  problems: mongoose.Types.ObjectId[] | IProblem[];
   status: 'upcoming' | 'active' | 'completed';
   participants: {
     username: string;

@@ -2,27 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/mongodb";
-import UserProgress, { IUserProgress, ITournamentProgress, IProblemProgress } from "@/models/userTournamentProgress";
-import Tournament from "@/models/tournament";
+import UserProgress, { /* IUserProgress, */ ITournamentProgress, IProblemProgress } from "@/models/userTournamentProgress";
+import Tournament, { ITournament } from "@/models/tournament";
+import { IProblem } from "@/models/problem";
 import User from "@/models/users";
 import Leaderboard from "@/models/leaderboard";
 import mongoose from "mongoose";
-
-// Add type for tournament
-interface ITournament {
-  _id: mongoose.Types.ObjectId;
-  weekNumber: number;
-  problems: Array<{
-    _id: mongoose.Types.ObjectId;
-    points: number;
-    title: string;
-  }>;
-  participants: Array<{
-    username: string;
-    points: number;
-    rewardClaimed?: boolean;
-  }>;
-}
 
 // Define achievement medals
 const achievementMedals: Record<string, string> = {
@@ -50,12 +35,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Update the tournament type casting
-    const tournament = await Tournament.findOne({ status: 'active' })
-      .populate('problems') as unknown as ITournament & { 
-        _id: mongoose.Types.ObjectId;
-        save: () => Promise<ITournament>;
-      };
+    // Type tournament as the imported ITournament. Populate will fill 'problems'.
+    const tournament: ITournament | null = await Tournament.findOne({ status: 'active' })
+      .populate('problems');
+
     if (!tournament) {
       return NextResponse.json({ error: "No active tournament found" }, { status: 404 });
     }
@@ -70,9 +53,9 @@ export async function POST(req: NextRequest) {
       userProgress = new UserProgress({
         userId: user._id,
         username: session.user.name,
-        currentTournament: new mongoose.Types.ObjectId(tournament._id),
+        currentTournament: new mongoose.Types.ObjectId(tournament._id as string),
         tournamentHistory: [{
-          tournamentId: new mongoose.Types.ObjectId(tournament._id),
+          tournamentId: new mongoose.Types.ObjectId(tournament._id as string),
           weekNumber: tournament.weekNumber,
           problems: [],
           totalPoints: 0,
@@ -86,12 +69,12 @@ export async function POST(req: NextRequest) {
 
     // Find or create tournament progress
     let tournamentProgress: ITournamentProgress | undefined = userProgress.tournamentHistory.find(
-      t => t.tournamentId.toString() === tournament._id.toString()
+      t => t.tournamentId.toString() === (tournament._id as any).toString()
     );
 
     if (!tournamentProgress) {
       tournamentProgress = {
-        tournamentId: new mongoose.Types.ObjectId(tournament._id),
+        tournamentId: new mongoose.Types.ObjectId(tournament._id as string),
         weekNumber: tournament.weekNumber,
         problems: [],
         totalPoints: 0,
@@ -158,9 +141,9 @@ export async function POST(req: NextRequest) {
         problemProgressDoc.set('firstSolvedAt', new Date());
       }
       
-      const tournamentProblem = tournament.problems.find(p => 
-        p._id.toString() === problemId
-      ) as { _id: mongoose.Types.ObjectId; points: number } | undefined;
+      const tournamentProblem = (tournament.problems as IProblem[]).find((p: IProblem) => {
+        return (p._id as any).toString() === problemId;
+      }) as { _id: mongoose.Types.ObjectId; points: number } | undefined;
       
       if (tournamentProblem) {
         pointsAwarded = tournamentProblem.points || 0;

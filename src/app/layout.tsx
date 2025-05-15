@@ -3,29 +3,30 @@
 import { SessionProvider } from "next-auth/react";
 import { DiamondsProvider } from "@/context/DiamondsContext"; 
 import { PointsProvider } from "@/context/PointsContext";
-import type { Metadata } from "next";
+// import type { Metadata } from "next"; // Removed unused import
 import "./globals.css";
 import Footer from "./ui/Footer";
 import Navbar from "./ui/navbar";
-import { Sora } from 'next/font/google';
-import { Inter } from 'next/font/google'; 
-import { Tektur } from 'next/font/google';
+// Font imports will be adjusted if their variables are removed
+// import { Tektur } from 'next/font/google';
+// import { Inter } from 'next/font/google'; 
+// import { Sora } from 'next/font/google';
 import { Toaster } from "@/components/ui/sonner";
 
-const tektur = Tektur({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-});
+// const tektur = Tektur({ // Removed unused variable
+//   subsets: ['latin'],
+//   weight: ['400', '500', '700'],
+// });
 
-const inter = Inter({
-  weight: "400",
-  subsets: ["latin"],
-});
+// const inter = Inter({ // Removed unused variable
+//   weight: "400",
+//   subsets: ["latin"],
+// });
 
-const sora = Sora({
-  weight: "400",
-  subsets: ["latin"],
-});
+// const sora = Sora({ // Removed unused variable
+//   weight: "400",
+//   subsets: ["latin"],
+// });
 
 export default function RootLayout({
   children,

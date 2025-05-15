@@ -25,6 +25,9 @@ interface IProblem extends Document {
   testCases: ITestCase[];
 }
 
+// Export IProblem interface
+export type { IProblem };
+
 const TestCaseSchema = new Schema<ITestCase>({
   input: {
     javascript: { type: String, required: true },

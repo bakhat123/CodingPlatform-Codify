@@ -3,7 +3,7 @@ import Tournament from "@/models/tournament";
 import User from "@/models/users";
 import connectDB from "@/lib/mongodb";
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   try {
     await connectDB();
 

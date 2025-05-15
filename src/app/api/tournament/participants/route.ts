@@ -4,7 +4,7 @@ import Tournament from "@/models/tournament";
 import connectDB from "@/lib/mongodb";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   const session = await getServerSession(authOptions);
 
   // Check if the session is valid and user is authenticated
