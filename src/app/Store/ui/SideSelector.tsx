@@ -40,7 +40,7 @@ const SideSelector: React.FC<SideSelectorProps> = ({ onApplyFilters }) => {
       />
 
       <p className="font-tektur font-bold text-[3.5714vh] text-white ml-[5vh] mt-[2.1429vh] mb-[2.8571vh]">
-        What's new!
+        What&apos;s new!
       </p>
       {["Recent", "Most Popular", "Owned", "Buy Coins", "All Items"].map((title) => (
         <SelectorItem

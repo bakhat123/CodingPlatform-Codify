@@ -43,7 +43,7 @@ const AboutUs = () => {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, []);
+  }, [milestones.length]);
 
   return (
     <section className="cyber-about-us">

@@ -6,13 +6,13 @@ import Button from "@/app/ui/subui/Button";  // Assuming Button component exists
 interface StoreCardProps {
   name: string;
   type: string;
-  features: string[];
+  // features: string[]; // Removed unused prop
   price: string;
   onPurchase: () => void;  // Function to handle purchase
   isPurchased: boolean;  // Whether the item is purchased
 }
 
-const ItemCard: React.FC<StoreCardProps> = ({ name, type, features, price, onPurchase, isPurchased }) => {
+const ItemCard: React.FC<StoreCardProps> = ({ name, type, /* features, */ price, onPurchase, isPurchased }) => {
   return (
     <div
       className={`w-[39.8214vh] h-[57.1429vh] mt-[4.2857vh] rounded-[4.2857vh] backdrop-blur-lg shadow-[0_4px_4px_rgba(0,0,0,0.4)] bg-[rgba(37,37,39,0.5)] relative`}
@@ -64,12 +64,13 @@ const ItemCard: React.FC<StoreCardProps> = ({ name, type, features, price, onPur
         {/* Disable button if item is purchased */}
         <Button
           onClick={onPurchase}
-          children={isPurchased ? "Purchased" : "BUY"}
           top="0vh"
           left="3.3571vh"
           pos="relative w-[19.5914vh] h-[6.3364vh]"
           disabled={isPurchased}  // Disable the button if the item is purchased
-        />
+        >
+          {isPurchased ? "Purchased" : "BUY"}
+        </Button>
       </div>
     </div>
   );
