@@ -4,7 +4,7 @@ import dbConnect from "@/lib/mongodb";  // Your MongoDB connection function
 import StoreItem from "@/models/store";  // Your StoreItem model
 
 // Handle GET request for fetching store items
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     await dbConnect();  // Connect to MongoDB
 

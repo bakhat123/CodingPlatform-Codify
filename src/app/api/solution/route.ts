@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     // problemSolution is an IProblemProgress object
-    let problemSolution = currentTournamentProgress.problems.find(
+    const problemSolution = currentTournamentProgress.problems.find(
       (p: IProblemProgress) => p.problemId.toString() === problemId
     );
 
