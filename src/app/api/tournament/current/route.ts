@@ -1,6 +1,6 @@
 // src/app/api/tournament/current/route.ts
 import { NextResponse } from "next/server";
-import { Tournament, Problem } from "@/models"; // Changed import
+import { Tournament /*, Problem*/ } from "@/models"; // Problem removed
 import connectDB from "@/lib/mongodb";
 import mongoose from "mongoose";
 

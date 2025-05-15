@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 interface UserData {
   username: string;
   email: string;
+  error?: string;
 }
 
 const ProfilyPage = () => {
@@ -41,15 +42,13 @@ const ProfilyPage = () => {
           fetch(`/api/users/${username}/sidebar`)
         ]);
 
-        const [userData, assetsData] = await Promise.all([
-          userRes.json(),
-          assetsRes.json()
-        ]);
+        const userDataFromAPI: UserData = await userRes.json();
+        const assetsData = await assetsRes.json();
 
-        if (!userRes.ok) throw new Error(userData.error || "Failed to fetch user");
+        if (!userRes.ok) throw new Error(userDataFromAPI.error || "Failed to fetch user");
         if (!assetsRes.ok) throw new Error(assetsData.error || "Failed to fetch assets");
 
-        setUserData(userData);
+        setUserData(userDataFromAPI);
         setAssets({
           pfp: assetsData.pfpUrl || "/default-pfp.png",
           background: assetsData.backgroundUrl || "/default-bg.jpg"

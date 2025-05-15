@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     // Find or create tournament progress
     let tournamentProgress: ITournamentProgress | undefined = userProgress.tournamentHistory.find(
-      t => t.tournamentId.toString() === (tournament._id as any).toString()
+      t => t.tournamentId.equals(tournament!._id as mongoose.Types.ObjectId)
     );
 
     if (!tournamentProgress) {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
       }
       
       const tournamentProblem = (tournament.problems as IProblem[]).find((p: IProblem) => {
-        return (p._id as any).toString() === problemId;
+        return (p._id as mongoose.Types.ObjectId).toString() === problemId;
       }) as { _id: mongoose.Types.ObjectId; points: number } | undefined;
       
       if (tournamentProblem) {
