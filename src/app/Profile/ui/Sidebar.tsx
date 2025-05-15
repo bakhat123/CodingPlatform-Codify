@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -35,16 +35,7 @@ const Sidebar = ({ username, initialPfp, initialBackground }: SidebarProps) => {
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [followers, setFollowers] = useState<string[]>([]);
 
-  useEffect(() => {
-    setAssets({
-      pfp: initialPfp,
-      background: initialBackground
-    });
-    fetchProfileData();
-    fetchUserRank();
-  }, [initialPfp, initialBackground, username]);
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       const response = await fetch(`/api/profile/${username}`);
       if (response.ok) {
@@ -71,9 +62,9 @@ const Sidebar = ({ username, initialPfp, initialBackground }: SidebarProps) => {
     } catch (error) {
       console.error("Error fetching profile data:", error);
     }
-  };
+  }, [username, session]);
 
-  const fetchUserRank = async () => {
+  const fetchUserRank = useCallback(async () => {
     try {
       const response = await fetch(`/api/leaderboard?username=${username}`);
       if (response.ok) {
@@ -83,7 +74,16 @@ const Sidebar = ({ username, initialPfp, initialBackground }: SidebarProps) => {
     } catch (error) {
       console.error("Error fetching user rank:", error);
     }
-  };
+  }, [username]);
+
+  useEffect(() => {
+    setAssets({
+      pfp: initialPfp,
+      background: initialBackground
+    });
+    fetchProfileData();
+    fetchUserRank();
+  }, [initialPfp, initialBackground, username, fetchProfileData, fetchUserRank]);
 
   const handleFollow = async () => {
     if (!session?.user?.name) {

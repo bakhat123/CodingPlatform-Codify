@@ -21,7 +21,6 @@ interface UserData {
 
 const ProfilyPage = () => {
   const { data: session } = useSession();
-  const [userData, setUserData] = useState<UserData | null>(null);
   const params = useParams();
   const username = params?.username as string;
   const [assets, setAssets] = useState({
@@ -48,7 +47,6 @@ const ProfilyPage = () => {
         if (!userRes.ok) throw new Error(userDataFromAPI.error || "Failed to fetch user");
         if (!assetsRes.ok) throw new Error(assetsData.error || "Failed to fetch assets");
 
-        setUserData(userDataFromAPI);
         setAssets({
           pfp: assetsData.pfpUrl || "/default-pfp.png",
           background: assetsData.backgroundUrl || "/default-bg.jpg"

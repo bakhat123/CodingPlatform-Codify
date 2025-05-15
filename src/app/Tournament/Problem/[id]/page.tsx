@@ -10,6 +10,24 @@ import Confetti from "react-confetti";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface ApiError {
+  error: string;
+}
+
+interface UserCodeResponse {
+  code?: string;
+  language?: string;
+  error?: string;
+}
+
+interface SubmitResponse {
+  success?: boolean;
+  points?: number;
+  error?: string;
+  allCompleted?: boolean;
+  tournamentJustCompleted?: boolean;
+}
+
 interface TestCase {
   input: {
     [key: string]: string;  // Maps language to input string
@@ -29,10 +47,17 @@ interface Problem {
   testCases: TestCase[];
 }
 
+interface TestResultItem {
+  expectedOutput: string;
+  actualOutput: string;
+  passed: boolean;
+  error?: string; // Error can be optional
+}
+
 export default function TournamentProblemPage() {
   const { id } = useParams();
   const [code, setCode] = useState<string>('');
-  const [output, setOutput] = useState<string>("");
+  const [output, setOutput] = useState<string>('');
   const [language, setLanguage] = useState<string>("javascript");
   const [error, setError] = useState<string>("");
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -42,25 +67,25 @@ export default function TournamentProblemPage() {
   const [passedTests, setPassedTests] = useState<number>(0);
   const [totalTests, setTotalTests] = useState<number>(0);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
-  const [isSolved, setIsSolved] = useState<boolean>(false);
+  const [testExecutionResults, setTestExecutionResults] = useState<TestResultItem[] | null>(null);
 
   useEffect(() => {
     async function fetchProblem() {
       try {
         const res = await fetch(`/api/problems/${id}`);
         if (!res.ok) {
-          const errorData = await res.json();
+          const errorData: ApiError = await res.json();
           throw new Error(errorData.error || "Problem not found");
         }
 
-        const data = await res.json();
+        const data: Problem = await res.json();
         setProblem(data);
         
         // Fetch user's last submitted code and language
         try {
           const codeResponse = await fetch(`/api/tournament/submit/code?problemId=${id}`);
           if (codeResponse.ok) {
-            const codeData = await codeResponse.json();
+            const codeData: UserCodeResponse = await codeResponse.json();
             console.log('Fetched code data:', codeData); // Debug log
             
             if (codeData.code) {
@@ -100,7 +125,7 @@ export default function TournamentProblemPage() {
       try {
         const codeResponse = await fetch(`/api/tournament/submit/code?problemId=${id}`);
         if (codeResponse.ok) {
-          const codeData = await codeResponse.json();
+          const codeData: UserCodeResponse = await codeResponse.json();
           // Only set starter code if there's no saved code
           if (!codeData.code && problem?.starterCode && problem.starterCode[language]) {
             setCode(problem.starterCode[language]);
@@ -114,33 +139,17 @@ export default function TournamentProblemPage() {
     if (id && problem) {
       checkAndSetStarterCode();
     }
-  }, [language, problem, id]);
+  }, [problem, id, language]);
 
   // Add a new useEffect to handle language changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (problem?.starterCode && problem.starterCode[language]) {
       setCode(problem.starterCode[language]);
     }
   }, [language, problem]);
 
-  useEffect(() => {
-    // Check if problem is already solved
-    const checkSolvedStatus = async () => {
-      try {
-        const response = await fetch(`/api/tournament/submit/status?problemId=${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIsSolved(data.isSolved);
-        }
-      } catch (err) {
-        console.error("Error checking solved status:", err);
-      }
-    };
-
-    if (id) checkSolvedStatus();
-  }, [id]);
-
-  const handleRun = async () => {
+  const handleRun = useCallback(async () => {
     if (!problem) {
       setError("Problem data not loaded");
       return;
@@ -149,9 +158,9 @@ export default function TournamentProblemPage() {
     setIsRunning(true);
     setError("");
     setOutput("");
+    setTestExecutionResults(null);
     setPassedTests(0);
     setTotalTests(problem.testCases.length);
-    setShowResults(true);
 
     try {
       if (code.trim() === "") {
@@ -171,72 +180,16 @@ export default function TournamentProblemPage() {
         })
       });
 
-      const data = await response.json();
+      const data: { testResults: TestResultItem[], error?: string | null } = await response.json();
       
       if (data.error) {
-        throw new Error(data.error);
+        setError(data.error);
+        return;
       }
 
-      const passedCount = data.testResults.filter((result: any) => result.passed).length;
+      const passedCount = data.testResults.filter((result: TestResultItem) => result.passed).length;
       setPassedTests(passedCount);
-
-      setOutput(
-        data.testResults.map(
-          (result: any, index: number) => (
-            <motion.div 
-              key={index} 
-              className="bg-gray-800 p-4 mb-4 rounded-lg shadow-lg border border-gray-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                  Test Case {index + 1}
-                </h3>
-                {result.passed ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-500" />
-                )}
-              </div>
-              <div className="my-2 bg-gray-900 p-3 rounded-lg">
-                <p className="font-medium text-blue-300 mb-1">Input:</p>
-                <pre className="text-sm text-gray-300 overflow-x-auto">
-                  {problem.testCases[index].input[language]}
-                </pre>
-              </div>
-              <div className="my-2 bg-gray-900 p-3 rounded-lg">
-                <p className="font-medium text-blue-300 mb-1">Expected:</p>
-                <pre className="text-sm text-gray-300 overflow-x-auto">
-                  {result.expectedOutput}
-                </pre>
-              </div>
-              <div className="my-2 bg-gray-900 p-3 rounded-lg">
-                <p className="font-medium text-blue-300 mb-1">Actual:</p>
-                <pre className="text-sm text-gray-300 overflow-x-auto">
-                  {result.actualOutput}
-                </pre>
-              </div>
-              {result.error && (
-                <div className="my-2 bg-gray-900 p-3 rounded-lg">
-                  <p className="font-medium text-red-300 mb-1">Error:</p>
-                  <pre className="text-sm text-red-300 overflow-x-auto">
-                    {result.error}
-                  </pre>
-                </div>
-              )}
-              <div className={`mt-3 py-2 px-3 rounded-lg ${
-                result.passed ? "bg-green-900/40 text-green-400 border border-green-700" : "bg-red-900/40 text-red-400 border border-red-700"
-              }`}>
-                <p className="font-semibold">
-                  Status: {result.passed ? "Passed" : "Failed"}
-                </p>
-              </div>
-            </motion.div>
-          )
-        )
-      );
+      setTestExecutionResults(data.testResults);
 
       if (passedCount === problem.testCases.length) {
         // Submit solution to tournament
@@ -248,72 +201,37 @@ export default function TournamentProblemPage() {
             },
             body: JSON.stringify({
               problemId: problem._id,
-              code,
-              language,
+              code: code,
+              language: language,
               passedTests: passedCount,
               totalTests: problem.testCases.length
             }),
           });
-
-          const submitData = await submitResponse.json();
-          
-          if (submitData.success) {
-            setIsSolved(true);
+          const submitData: SubmitResponse = await submitResponse.json();
+          if (submitResponse.ok && submitData.success) {
             toast.success(`Solution submitted! Earned ${submitData.points} points! 🎉`, {
               position: "top-right",
               autoClose: 3000,
-              hideProgressBar: true,
-              closeOnClick: true,
-              draggable: true,
             });
-
-            if (submitData.completed) {
-              toast.success(`Congratulations! You've completed all problems and earned ${submitData.diamondsEarned} diamonds! 🏆`, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                draggable: true,
-              });
+            if (submitData.allCompleted || submitData.tournamentJustCompleted) {
               setShowConfetti(true);
-              setTimeout(() => setShowConfetti(false), 6000);
+              setTimeout(() => setShowConfetti(false), 7000);
             }
           } else {
-            toast.error("Failed to submit solution", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: true,
-              closeOnClick: true,
-              draggable: true,
-            });
+            toast.error(submitData.error || "Failed to submit solution.");
           }
-        } catch (submitError) {
-          console.error("Error submitting solution:", submitError);
-          toast.error("Failed to submit solution", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            draggable: true,
-          });
+        } catch (submitError: unknown) {
+          toast.error(submitError instanceof Error ? submitError.message : "Error submitting solution.");
         }
-      } else {
-        toast.error(`${passedCount}/${problem.testCases.length} tests passed`, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          draggable: true,
-        });
       }
-
-      setHasRunCode(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred during execution.");
     } finally {
       setIsRunning(false);
+      setHasRunCode(true);
+      setShowResults(true);
     }
-  };
+  }, [problem, code, language]);
 
   const handleToggleClick = () => {
     setShowResults(!showResults);
@@ -567,10 +485,61 @@ export default function TournamentProblemPage() {
                         </div>
                       )}
                       
-                      <OutputPanel 
-                        output={output} 
-                        error={error} 
-                      />
+                      {testExecutionResults && testExecutionResults.map((result, index) => (
+                        <motion.div 
+                          key={index} 
+                          className="bg-gray-800 p-4 mb-4 rounded-lg shadow-lg border border-gray-700"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                              Test Case {index + 1}
+                            </h3>
+                            {result.passed ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
+                          </div>
+                          <div className="my-2 bg-gray-900 p-3 rounded-lg">
+                            <p className="font-medium text-blue-300 mb-1">Input:</p>
+                            <pre className="text-sm text-gray-300 overflow-x-auto">
+                              {problem?.testCases[index]?.input[language] || "N/A"}
+                            </pre>
+                          </div>
+                          <div className="my-2 bg-gray-900 p-3 rounded-lg">
+                            <p className="font-medium text-blue-300 mb-1">Expected:</p>
+                            <pre className="text-sm text-gray-300 overflow-x-auto">
+                              {result.expectedOutput}
+                            </pre>
+                          </div>
+                          <div className="my-2 bg-gray-900 p-3 rounded-lg">
+                            <p className="font-medium text-blue-300 mb-1">Actual:</p>
+                            <pre className="text-sm text-gray-300 overflow-x-auto">
+                              {result.actualOutput}
+                            </pre>
+                          </div>
+                          {result.error && (
+                            <div className="my-2 bg-gray-900 p-3 rounded-lg">
+                              <p className="font-medium text-red-300 mb-1">Error:</p>
+                              <pre className="text-sm text-red-300 overflow-x-auto">
+                                {result.error}
+                              </pre>
+                            </div>
+                          )}
+                          <div className={`mt-3 py-2 px-3 rounded-lg ${
+                            result.passed ? "bg-green-900/40 text-green-400 border border-green-700" : "bg-red-900/40 text-red-400 border border-red-700"}
+                          }`}>
+                            <p className="font-semibold">
+                              Status: {result.passed ? "Passed" : "Failed"}
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
+                      
+                      <OutputPanel output={output} error={error} />
                     </motion.div>
                   )}
                 </AnimatePresence>

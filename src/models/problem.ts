@@ -26,7 +26,7 @@ interface IProblem extends Document {
 }
 
 // Export IProblem interface
-export type { IProblem };
+export type { IProblem, ITestCase };
 
 const TestCaseSchema = new Schema<ITestCase>({
   input: {

@@ -9,10 +9,35 @@ import ItemCard from "./ui/ItemCard";
 import SkeletonLoader from "./skeleton";
 import "sweetalert2/dist/sweetalert2.min.css";
 
+interface IStoreItem {
+  _id: string;
+  name: string;
+  type: string;
+  features?: string[];
+  price: string; // Or number, if appropriate
+  // Add other fields like 'image', 'description' if they exist from API
+}
+
+interface IUserAssetsResponse {
+  assets: {
+    pfps: string[];
+    backgrounds: string[];
+  };
+  error?: string; 
+}
+
+interface IPurchaseSuccessResponse {
+  message: string;
+}
+
+interface IPurchaseErrorResponse {
+  error: string;
+}
+
 const Page = () => {
   const { data: session, status } = useSession();
   const { diamonds, setDiamonds } = useDiamonds();
-  const [storeItems, setStoreItems] = useState<any[]>([]);
+  const [storeItems, setStoreItems] = useState<IStoreItem[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>("All Items");
   const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -35,15 +60,25 @@ const Page = () => {
 
         // Handle store items response
         if (!storeRes.ok) throw new Error("Failed to fetch store items");
-        const storeData = await storeRes.json();
+        const storeData: IStoreItem[] = await storeRes.json();
         setStoreItems(storeData);
 
         // Handle user assets response if authenticated
-        if (assetsRes) {
-          const assetsData = await assetsRes.json();
-          if (assetsRes.ok && assetsData.assets) {
+        if (assetsRes && assetsRes.ok) {
+          const assetsData: IUserAssetsResponse = await assetsRes.json();
+          if (assetsData.assets) {
             const { pfps, backgrounds } = assetsData.assets;
             setPurchasedItems([...pfps, ...backgrounds]);
+          } else if (assetsData.error) {
+            console.warn("Error fetching user assets:", assetsData.error);
+          }
+        } else if (assetsRes && !assetsRes.ok) {
+          // Handle cases where assetsRes exists but response is not ok
+          try {
+            const errorData: IUserAssetsResponse = await assetsRes.json();
+            console.warn("Failed to fetch user assets:", errorData.error || assetsRes.statusText);
+          } catch {
+            console.warn("Failed to fetch user assets and parse error response:", assetsRes.statusText);
           }
         }
       } catch (error) {
@@ -111,9 +146,9 @@ const Page = () => {
         body: JSON.stringify(requestBody),
       });
 
-      const data = await res.json();
+      const data: IPurchaseSuccessResponse | IPurchaseErrorResponse = await res.json();
 
-      if (res.ok && data.message === "Item purchased successfully") {
+      if (res.ok && 'message' in data) {
         Swal.fire({
           icon: "success",
           title: "Purchase Successful!",
@@ -127,10 +162,11 @@ const Page = () => {
         setPurchasedItems((prev) => [...prev, itemName]);
         setDiamonds(diamonds - itemPrice);
       } else {
+        const errorMessage = 'error' in data ? data.error : "Something went wrong, please try again.";
         Swal.fire({
           icon: "error",
           title: "Failed to purchase item",
-          text: data.error || "Something went wrong, please try again.",
+          text: errorMessage,
           background: "#333",
           color: "#fff",
           iconColor: "red",
@@ -173,7 +209,6 @@ const Page = () => {
                 key={item._id}
                 name={item.name}
                 type={item.type}
-                features={item.features}
                 price={item.price}
                 onPurchase={() => handlePurchase(item._id, item.name, item.price)}
                 isPurchased={purchasedItems.includes(item.name)}

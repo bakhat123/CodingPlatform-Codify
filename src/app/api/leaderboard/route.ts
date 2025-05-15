@@ -15,6 +15,7 @@ const PRIZES: Record<number, number> = {
   10: 40,
 };
 
+/*
 interface LeaderboardResponse {
   ratings: {
     id: number;
@@ -26,6 +27,12 @@ interface LeaderboardResponse {
   userRank?: number;
   totalUsers: number;
 }
+*/
+
+interface PopulatedUser {
+  _id: string; // Or mongoose.Types.ObjectId if that's the actual type after population
+  username: string;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,7 +43,7 @@ export async function GET(req: NextRequest) {
     // Get all entries sorted by points
     const allEntries = await Leaderboard.find()
       .sort({ points: -1 }) // Sort in descending order by points
-      .populate({
+      .populate<{ userId: PopulatedUser | null }>({
         path: 'userId',
         select: 'username',
         model: User
@@ -47,7 +54,7 @@ export async function GET(req: NextRequest) {
     const ratings = allEntries.slice(0, 10).map((entry, index) => ({
       id: index + 1,
       place: (index + 1).toString(),
-      username: (entry.userId as any)?.username || 'Anonymous',
+      username: entry.userId?.username || 'Anonymous',
       points: entry.points,
       prize: PRIZES[index + 1] || 0
     }));
@@ -57,7 +64,7 @@ export async function GET(req: NextRequest) {
     if (username) {
       // Find user entry by username
       const userEntry = allEntries.find(entry => 
-        (entry.userId as any)?.username === username
+        entry.userId?.username === username
       );
 
       if (userEntry) {
@@ -74,7 +81,7 @@ export async function GET(req: NextRequest) {
           }
 
           // If we find the user in the leaderboard
-          if ((entry.userId as any)?.username === username) {
+          if (entry.userId?.username === username) {
             userRank = rank; // Set the rank of the user
             break;
           }

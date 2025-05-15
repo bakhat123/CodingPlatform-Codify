@@ -1,6 +1,35 @@
 import { NextResponse } from "next/server";
-import Problem from "@/models/problem";
+// IProblem and ITestCase imports will be removed as they are replaced by local plain types
+import Problem from "@/models/problem"; 
 import connectDB from "@/lib/mongodb";
+
+// Define the structure for plain lean objects
+interface PlainTestCaseFromModel {
+  input: {
+    javascript: string;
+    python: string;
+    cpp: string;
+    java: string;
+  };
+  expectedOutput: string;
+  // Potentially _id: string if lean() includes it and it's needed
+}
+
+interface PlainProblemData {
+  _id: { toString(): string }; // Mongoose ObjectId has toString(), or string if lean already converts
+  title: string;
+  description: string;
+  starterCode: {
+    javascript: string;
+    python: string;
+    cpp: string;
+    java: string;
+  };
+  difficulty: 'easy' | 'medium' | 'hard';
+  points: number;
+  testCases: PlainTestCaseFromModel[];
+  id?: number; // from ProblemSchema, for findOne({ id: ... })
+}
 
 export async function GET(
   request: Request,
@@ -12,12 +41,11 @@ export async function GET(
     // Log the ID for debugging
     console.log('Fetching problem with ID:', params.id);
     
-    // Try to find problem by _id first
-    let problem = await Problem.findById(params.id).lean();
+    let problem: PlainProblemData | null = await Problem.findById(params.id).lean<PlainProblemData>();
     
-    // If not found, try to find by numeric id
     if (!problem) {
-      problem = await Problem.findOne({ id: parseInt(params.id) }).lean();
+      // Ensure the type is consistent if found by numeric id
+      problem = await Problem.findOne({ id: parseInt(params.id) }).lean<PlainProblemData>();
     }
     
     if (!problem) {
@@ -36,7 +64,7 @@ export async function GET(
       starterCode: problem.starterCode,
       difficulty: problem.difficulty,
       points: problem.points,
-      testCases: problem.testCases.map((tc: any) => ({
+      testCases: problem.testCases.map((tc: PlainTestCaseFromModel) => ({
         input: tc.input,
         expectedOutput: tc.expectedOutput
       }))

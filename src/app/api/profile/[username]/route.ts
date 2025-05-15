@@ -39,11 +39,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params: _params }: { params: { username: string } }
 ) {
   try {
     await dbConnect();
-    const { username } = params;
+    // const { username } = _params; // Remains commented, or can be removed if _params is never used
     const { followerUsername, targetUsername } = await request.json();
 
     if (!followerUsername || !targetUsername) {

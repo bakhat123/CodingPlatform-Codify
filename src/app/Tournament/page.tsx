@@ -6,12 +6,14 @@ import ProblemCard from "./ui/ProblemCard";
 import Timer from "../LeaderBoard/ui/Timer";
 import AwardContainer from "./ui/AwardContainer";
 
+/* // Removed unused interface RawParticipant
 interface RawParticipant {
   username?: string;
   totalPoints?: number;
   rank?: number;
   rewardClaimed?: boolean;
 }
+*/
 
 interface Problem {
   _id: string;

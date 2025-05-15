@@ -11,6 +11,11 @@ interface LanguageWrapper {
   prepareCode: (code: string, testInput: string) => string;
 }
 
+interface ITestCase {
+  input: string;
+  expectedOutput: string;
+}
+
 const LANGUAGE_WRAPPERS: Record<string, LanguageWrapper> = {
   javascript: {
     prepareCode: (code: string, testInput: string) => {
@@ -206,7 +211,7 @@ export async function POST(request: Request) {
     
     // Process each test case
     const testResults = await Promise.all(
-      testCases.map(async (testCase: any) => {
+      testCases.map(async (testCase: ITestCase) => {
         const { input, expectedOutput } = testCase;
         
         // Prepare the code with the language-specific wrapper
