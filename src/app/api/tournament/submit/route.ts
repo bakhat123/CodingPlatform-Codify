@@ -101,14 +101,15 @@ export async function POST(req: NextRequest) {
         weekCompleted: false
       };
       userProgress.tournamentHistory.push(tournamentProgress);
+      // If new, retrieve the Mongoose-managed object
+      tournamentProgress = userProgress.tournamentHistory[userProgress.tournamentHistory.length - 1];
     }
 
-    // Find or create problem progress
-    let problemProgress = tournamentProgress.problems.find(
+    // Find problem progress
+    let problemProgressDoc = tournamentProgress.problems.find(
       p => p.problemId.toString() === problemId
-    );
+    ) as (mongoose.Document & IProblemProgress) | undefined;
 
-    // Create the submission object first
     const submission = {
       submittedAt: new Date(),
       code,
@@ -118,26 +119,29 @@ export async function POST(req: NextRequest) {
       totalTests
     };
 
-    if (!problemProgress) {
-      // Create new problem progress with the submission included
-      problemProgress = {
+    if (!problemProgressDoc) {
+      const newProblemData: IProblemProgress = {
         problemId: new mongoose.Types.ObjectId(problemId),
-        status: 'attempted',
-        submissions: [submission], // Include the submission immediately
+        status: 'attempted', // Initial status
+        submissions: [submission],
         pointsEarned: 0,
         firstSolvedAt: passedTests === totalTests ? new Date() : undefined,
         lastSubmittedCode: code
       };
-      tournamentProgress.problems.push(problemProgress);
+      tournamentProgress.problems.push(newProblemData);
+      // Retrieve the newly added problem as a Mongoose subdocument
+      problemProgressDoc = tournamentProgress.problems[tournamentProgress.problems.length - 1] as mongoose.Document & IProblemProgress;
     } else {
       // Add submission to existing problem progress
-      problemProgress.submissions.push(submission);
-      problemProgress.lastSubmittedCode = code;
+      problemProgressDoc.submissions.push(submission);
+      problemProgressDoc.set('lastSubmittedCode', code);
     }
 
-    // Set problem as attempted if not already
-    if (problemProgress.status === 'not_started') {
-      problemProgress.status = 'attempted';
+    // Set problem as attempted if not already solved or attempted from creation
+    // 'status' would be 'attempted' if newly created.
+    // If it was 'not_started' (e.g. old problem, first submission now), set to 'attempted'.
+    if (problemProgressDoc.status === 'not_started') {
+      problemProgressDoc.set('status', 'attempted');
     }
 
     let diamondsAwarded = 0;
@@ -147,20 +151,21 @@ export async function POST(req: NextRequest) {
     let tournamentJustCompleted = false;
 
     // Update if solved and not already solved before
-    if (passedTests === totalTests && problemProgress.status !== 'solved') {
-      problemProgress.status = 'solved';
-      problemProgress.firstSolvedAt = new Date();
+    if (passedTests === totalTests && problemProgressDoc.status !== 'solved') {
+      problemProgressDoc.set('status', 'solved');
+      // Only set firstSolvedAt if it's not already set (though status !== 'solved' should cover this)
+      if (!problemProgressDoc.firstSolvedAt) {
+        problemProgressDoc.set('firstSolvedAt', new Date());
+      }
       
-      // Find the problem in the tournament to get its points
       const tournamentProblem = tournament.problems.find(p => 
         p._id.toString() === problemId
       ) as { _id: mongoose.Types.ObjectId; points: number } | undefined;
       
       if (tournamentProblem) {
         pointsAwarded = tournamentProblem.points || 0;
-        problemProgress.pointsEarned = pointsAwarded;
+        problemProgressDoc.set('pointsEarned', pointsAwarded);
         
-        // Update tournament statistics
         tournamentProgress.totalPoints += pointsAwarded;
         tournamentProgress.completedProblems += 1;
       }
@@ -250,7 +255,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Ensure the modified tournamentProgress is correctly seen by Mongoose
+    if (tournamentProgress) {
+      const tpIndex = userProgress.tournamentHistory.findIndex(
+        tp => tp.tournamentId.equals(tournamentProgress!.tournamentId) // Use non-null assertion if sure
+      );
+      if (tpIndex !== -1) {
+        userProgress.tournamentHistory[tpIndex] = tournamentProgress;
+      }
+    }
+    
     // Save changes
+    if (userProgress.isModified()) { 
+      userProgress.markModified('tournamentHistory');
+    }
     await Promise.all([
       userProgress.save(),
       tournament.save()
@@ -259,7 +277,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       points: pointsAwarded,
-      status: problemProgress.status,
+      status: problemProgressDoc.status,
       diamondsAwarded,
       achievement: achievementAwardedName ? { name: achievementAwardedName, medal: awardedMedal } : null,
       allCompleted: tournamentProgress.completed,
