@@ -4,13 +4,12 @@ import Profile from "@/models/profile";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  context: { params: Promise<{ username: string }> }
 ) {
+  const { username: targetUsername } = await context.params;
   try {
     await dbConnect();
     
-    // Properly destructure params
-    const targetUsername = params.username;
     const { followerUsername } = await request.json();
 
     // Validate inputs

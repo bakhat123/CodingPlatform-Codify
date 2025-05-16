@@ -53,6 +53,7 @@ const AssetCard: React.FC<CardProps> = ({ assetPath, type, onUse }) => {
             left="0px" 
             pos={`w-[77px] h-[23px]`}
             onClick={handleUse}
+            disabled={false}
           >
             Use
           </Button>

@@ -4,11 +4,11 @@ import User from "@/models/users";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  context: { params: Promise<{ username: string }> }
 ) {
+  const { username } = await context.params;
   try {
     await dbConnect();
-    const { username } = params;
 
     if (!username) {
       return NextResponse.json(
@@ -48,11 +48,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  context: { params: Promise<{ username: string }> }
 ) {
+  const { username } = await context.params;
   try {
     await dbConnect();
-    const { username } = params;
 
     if (!username) {
       return NextResponse.json(

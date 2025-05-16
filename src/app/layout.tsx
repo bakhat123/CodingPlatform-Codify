@@ -7,7 +7,7 @@ import { PointsProvider } from "@/context/PointsContext";
 import "./globals.css";
 import Footer from "./ui/Footer";
 import Navbar from "./ui/navbar";
-// Font imports will be adjusted if their variables are removed
+
 // import { Tektur } from 'next/font/google';
 // import { Inter } from 'next/font/google'; 
 // import { Sora } from 'next/font/google';

@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-// IProblem and ITestCase imports will be removed as they are replaced by local plain types
+import { NextRequest, NextResponse } from "next/server";
 import Problem from "@/models/problem"; 
 import connectDB from "@/lib/mongodb";
 
@@ -12,7 +11,6 @@ interface PlainTestCaseFromModel {
     java: string;
   };
   expectedOutput: string;
-  // Potentially _id: string if lean() includes it and it's needed
 }
 
 interface PlainProblemData {
@@ -31,25 +29,28 @@ interface PlainProblemData {
   id?: number; // from ProblemSchema, for findOne({ id: ... })
 }
 
+
+
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
   try {
     await connectDB();
     
     // Log the ID for debugging
-    console.log('Fetching problem with ID:', params.id);
+    console.log('Fetching problem with ID:', id);
     
-    let problem: PlainProblemData | null = await Problem.findById(params.id).lean<PlainProblemData>();
+    let problem: PlainProblemData | null = await Problem.findById(id).lean<PlainProblemData>();
     
     if (!problem) {
       // Ensure the type is consistent if found by numeric id
-      problem = await Problem.findOne({ id: parseInt(params.id) }).lean<PlainProblemData>();
+      problem = await Problem.findOne({ id: parseInt(id) }).lean<PlainProblemData>();
     }
     
     if (!problem) {
-      console.log('Problem not found with ID:', params.id);
+      console.log('Problem not found with ID:', id);
       return NextResponse.json(
         { error: "Problem not found" },
         { status: 404 }

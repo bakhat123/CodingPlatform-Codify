@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import Tournament from "@/models/tournament";
 import connectDB from "@/lib/mongodb";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(_request: Request) {
   const session = await getServerSession(authOptions);
-
+  console.log(_request);
   // Check if the session is valid and user is authenticated
   if (!session?.user?.name) {
     return NextResponse.json(

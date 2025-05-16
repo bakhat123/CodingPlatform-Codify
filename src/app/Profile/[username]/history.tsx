@@ -76,7 +76,6 @@ const History = () => {
             lastResult="Accepted"
             submissions={problem.submissions.toString()}
             problemId={problem.id}
-            tournamentId={problem.tournamentTitle}
           />
         ))}
       </div>

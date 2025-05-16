@@ -4,6 +4,7 @@ import User from "@/models/users";
 import connectDB from "@/lib/mongodb";
 
 export async function POST(_request: Request) {
+  console.log(_request);
   try {
     await connectDB();
 

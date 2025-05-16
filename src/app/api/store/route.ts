@@ -7,6 +7,7 @@ import StoreItem from "@/models/store";  // Your StoreItem model
 export async function GET(_req: NextRequest) {
   try {
     await dbConnect();  // Connect to MongoDB
+    console.log(_req);
 
     const storeItems = await StoreItem.find();  // Fetch all store items
 

@@ -16,7 +16,7 @@ const RatingCard: React.FC<RatingCardProps> = ({
     difficulty, 
     lastResult,
     submissions,
-    problemId
+    problemId,
 }) => {
   const router = useRouter();
   const difficultyClass = difficulty.toLowerCase() === "easy" ? "text-[#1CBABA]" 

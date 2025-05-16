@@ -4,13 +4,12 @@ import Profile from "@/models/profile";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { username: string } } // Properly typed params
+  context: { params: Promise<{ username: string }> }
 ) {
+  const { username } = await context.params;
   try {
     await dbConnect();
     
-    // Safe parameter access - don't destructure directly
-    const username = params.username;
     const { bio } = await request.json();
 
     if (!bio || typeof bio !== 'string') {

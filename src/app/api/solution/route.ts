@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import mongoose from "mongoose";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import Problem from "@/models/problem";
 import UserProgress, { ITournamentProgress, IProblemProgress, IUserProgress } from "@/models/userTournamentProgress";
 import User from "@/models/users";
